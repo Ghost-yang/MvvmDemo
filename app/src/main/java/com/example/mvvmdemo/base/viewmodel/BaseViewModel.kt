@@ -30,7 +30,7 @@ abstract class BaseViewModel<T : BaseRepository> : ViewModel() {
         repository.loadLivedata
     }
 
-    val castException = CoroutineExceptionHandler { coroutineContext, throwable ->
+    private val castException = CoroutineExceptionHandler { coroutineContext, throwable ->
 
     }
 
