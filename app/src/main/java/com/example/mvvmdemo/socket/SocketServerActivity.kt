@@ -3,6 +3,7 @@ package com.example.mvvmdemo.socket
 import android.os.Bundle
 import com.example.composedemo.base.BaseSimpleVBActivity
 import com.example.mvvmdemo.databinding.ActivitySocketServerBinding
+import com.example.mvvmdemo.utils.IpUtils
 import com.orhanobut.logger.Logger
 import java.io.BufferedReader
 import java.io.BufferedWriter
@@ -22,6 +23,12 @@ class SocketServerActivity : BaseSimpleVBActivity<ActivitySocketServerBinding>()
     lateinit var socket: Socket
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding.tvIp.text = IpUtils.getIp()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
         createServer()
     }
 
@@ -34,7 +41,7 @@ class SocketServerActivity : BaseSimpleVBActivity<ActivitySocketServerBinding>()
                 val inputStream = socket.getInputStream()
                 val bufferInputStream = BufferedReader(inputStream.reader())
                 val content = bufferInputStream.readLine()
-                Logger.d("rec--->" + content)
+                Logger.d("rec--->$content")
 
                 val outputStream = socket.getOutputStream()
                 val bufferedWriter = BufferedWriter(outputStream.writer())

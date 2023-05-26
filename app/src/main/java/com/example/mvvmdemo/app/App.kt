@@ -8,6 +8,7 @@ import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
 import dagger.hilt.android.HiltAndroidApp
 import rxhttp.RxHttpPlugins
+import kotlin.properties.Delegates
 
 
 /**
@@ -18,9 +19,10 @@ import rxhttp.RxHttpPlugins
  */
 @HiltAndroidApp
 class App : Application() {
+
     override fun onCreate() {
         super.onCreate()
-
+        instance = this
         RxHttpPlugins.init(RxHttpManager.client)
             .setDebug(true)
             .setOnParamAssembly {
@@ -43,5 +45,6 @@ class App : Application() {
 
     companion object {
         const val TAG = "GTV"
+        var instance by Delegates.notNull<Application>()
     }
 }

@@ -32,24 +32,26 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
     }
 
     fun create() {
-        /*  lifecycleScope.launch {
-              val content = withContext(Dispatchers.IO) {
-                  try {
-                      Logger.d("start connect socket--" + Thread.currentThread().name)
-                      socket = Socket(serverIp, serverPort)
-                      Logger.d("connect statu--" + socket.isConnected)
-                      //发送数据
-                      sendData("客户端消息")
-                      //接受数据
-                      val inputStream = socket.getInputStream()
-                      val buffer = BufferedReader(inputStream.reader(), 1024)
-                      buffer.readLine()
-                  } catch (e: Exception) {
-                      e.printStackTrace()
-                  }
-              }
-              binding.tvMessage.text = content.toString()*/
-        thread {
+        lifecycleScope.launch {
+            val content = withContext(Dispatchers.IO) {
+                try {
+                    Logger.d("start connect socket--" + Thread.currentThread().name)
+                    socket = Socket(serverIp, serverPort)
+                    Logger.d("connect statu--" + socket.isConnected)
+                    //发送数据
+                    sendData("客户端消息")
+                    //接受数据
+                    val inputStream = socket.getInputStream()
+                    val buffer = BufferedReader(inputStream.reader(), 1024)
+                    buffer.readLine()
+                    //Logger.d("好的，我收到了你的回复：${buffer.readLine()}")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+            }
+            binding.tvMessage.text = content.toString()
+            /* thread {
             try {
                 Logger.d("start connect socket--" + Thread.currentThread().name)
                 socket = Socket(serverIp, serverPort)
@@ -63,6 +65,7 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }*/
         }
     }
 
@@ -85,7 +88,7 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
     }
 
     companion object {
-        const val serverIp = "10.7.130.101"
+        const val serverIp = "10.7.130.103"
         const val serverPort = 42519
     }
 
