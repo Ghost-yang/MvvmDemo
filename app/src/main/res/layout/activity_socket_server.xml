@@ -17,4 +17,28 @@
 
     </TextView>
 
+    <Button
+        android:id="@+id/btn_start_tcp"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/btn_start_tcp_server"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_ip">
+
+    </Button>
+
+    <Button
+        android:id="@+id/btn_start_udp"
+        android:layout_width="200dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:text="@string/btn_start_udp_server"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_start_tcp">
+
+    </Button>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

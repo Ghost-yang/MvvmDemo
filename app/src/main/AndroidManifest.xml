@@ -26,8 +26,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.mvvmdemo.socket.SocketClientActivity" />
-        <activity android:name="com.example.mvvmdemo.socket.SocketServerActivity" />
+        <activity
+            android:name="com.example.mvvmdemo.socket.SocketClientActivity"
+            android:theme="@style/Theme.MvvmDemo" />
+        <activity
+            android:name="com.example.mvvmdemo.socket.SocketServerActivity"
+            android:theme="@style/Theme.MvvmDemo" />
     </application>
 
 </manifest>

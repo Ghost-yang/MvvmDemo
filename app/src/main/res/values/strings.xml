@@ -43,4 +43,8 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="tv_server_back_message">服务端返回消息：%s</string>
+    <string name="tv_server_ip">当前设备IP:%s</string>
+    <string name="btn_start_tcp_server">启动Tcp服务</string>
+    <string name="btn_start_udp_server">启动Udp服务</string>
 </resources>

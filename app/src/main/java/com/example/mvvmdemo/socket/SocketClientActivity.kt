@@ -1,19 +1,23 @@
 package com.example.mvvmdemo.socket
 
 import android.os.Bundle
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import com.example.composedemo.base.BaseSimpleVBActivity
-import com.example.mvvmdemo.base.BaseSimpleVBFragment
+import com.example.mvvmdemo.R
 import com.example.mvvmdemo.databinding.ActivitySocketSocketBinding
+import com.example.mvvmdemo.utils.IpUtils
+import com.example.mvvmdemo.utils.click
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.BufferedWriter
-import java.io.IOException
+import java.net.DatagramPacket
+import java.net.DatagramSocket
+import java.net.InetAddress
 import java.net.Socket
-import kotlin.concurrent.thread
 
 /**
  * @description
@@ -24,16 +28,30 @@ import kotlin.concurrent.thread
 class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>() {
     private lateinit var socket: Socket
 
+    private lateinit var udpScoket: DatagramSocket
+
+    private var serverIp = "127.0.0.1"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding.btnSend.setOnClickListener {
-            create()
+        binding.run {
+            btnTcpSend.setOnClickListener {
+                createTcp()
+            }
+
+            btnUdpSend.click {
+                createUdp()
+            }
+            edtServerIp.addTextChangedListener {
+                serverIp = it.toString()
+            }
         }
     }
 
-    fun create() {
+    private fun createTcp() {
         lifecycleScope.launch {
             val content = withContext(Dispatchers.IO) {
+                var contentStr = ""
                 try {
                     Logger.d("start connect socket--" + Thread.currentThread().name)
                     socket = Socket(serverIp, serverPort)
@@ -43,14 +61,14 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
                     //接受数据
                     val inputStream = socket.getInputStream()
                     val buffer = BufferedReader(inputStream.reader(), 1024)
-                    buffer.readLine()
-                    //Logger.d("好的，我收到了你的回复：${buffer.readLine()}")
+                    contentStr = buffer.readLine()
+                    // Logger.d("好的，我收到了你的回复：${buffer.readLine()}")
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
+                contentStr
             }
-            binding.tvMessage.text = content.toString()
+            binding.tvMessage.text = getString(R.string.tv_server_back_message, content.toString())
             /* thread {
             try {
                 Logger.d("start connect socket--" + Thread.currentThread().name)
@@ -69,8 +87,37 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
         }
     }
 
+    private fun createUdp() {
+        lifecycleScope.launch {
+            val recContent = withContext(Dispatchers.IO) {
+                var rec = ""
+                try {
+                    Logger.d("start send udp--" + Thread.currentThread().name)
+                    val data = "你好，UDP服务端"
+                    val bytes = data.toByteArray()
+                    val intAddress = InetAddress.getByName(serverIp)
+                    val packet = DatagramPacket(bytes, bytes.size, intAddress, serverPort)
+                    Logger.d("send packet--address${intAddress}--port-->${serverPort}")
+                    udpScoket = DatagramSocket()
+                    udpScoket.send(packet)
 
-    fun sendData(data: String) {
+                    val recBytes = ByteArray(1024)
+                    val recPacket = DatagramPacket(recBytes, recBytes.size)
+                    udpScoket.receive(recPacket)
+                    rec = recBytes.toString()
+                    rec
+
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            binding.tvMessage.text =
+                getString(R.string.tv_server_back_message, recContent.toString())
+        }
+    }
+
+
+    private fun sendData(data: String) {
         val outputStream = socket.getOutputStream()
         val buffer = BufferedWriter(outputStream.writer(), 1024)
         buffer.write(data)
@@ -78,8 +125,10 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
         buffer.flush()
     }
 
-    fun close() {
-        socket.close()
+    private fun close() {
+        if (this::socket.isInitialized) {
+            socket.close()
+        }
     }
 
     override fun onDestroy() {
@@ -88,9 +137,7 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
     }
 
     companion object {
-        const val serverIp = "10.7.130.103"
         const val serverPort = 42519
     }
-
 
 }
