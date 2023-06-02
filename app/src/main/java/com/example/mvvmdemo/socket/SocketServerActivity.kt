@@ -67,37 +67,47 @@ class SocketServerActivity : BaseSimpleVBActivity<ActivitySocketServerBinding>()
     }
 
     private fun createUdpServer() {
+        udpSocket = DatagramSocket(serverPort)
         thread {
             try {
                 Logger.d("create udp server")
-                val bytes = ByteArray(1024)
-                //创建接受数据包
-                val packet = DatagramPacket(bytes, bytes.size)
-                udpSocket = DatagramSocket(serverPort)
-                udpSocket.receive(packet)
-                Logger.d(
-                    "rec content-->${
-                        String(
-                            bytes,
-                            0,
-                            packet.length
-                        )
-                    }--ip${packet.address.hostAddress}--port${packet.port}"
-                )
-                //创建发送数据包
-                /* val sendPacket = DatagramPacket(bytes, bytes.size*//*, packet.address, packet.port*//*)
-                udpSocket.send(sendPacket)*/
-
+                while (true) {
+                    val bytes = ByteArray(1024)
+                    //创建接受数据包
+                    val packet = DatagramPacket(bytes, bytes.size)
+                    udpSocket.receive(packet)
+                    Logger.d(
+                        "rec content-->${
+                            String(
+                                bytes,
+                                0,
+                                packet.length
+                            )
+                        }--ip${packet.address.hostAddress}--port${packet.port}"
+                    )
+                    sendUdpData(packet)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 
+    private fun sendUdpData(packet: DatagramPacket) {
+        //创建发送数据包
+        val senddata = "hi，收到了你的消息。现回复你".toByteArray()
+        val sendPacket =
+            DatagramPacket(senddata, senddata.size, packet.address, packet.port)
+        udpSocket.send(sendPacket)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         if (this::socket.isInitialized) {
             socket.close()
+        }
+        if (this::udpSocket.isInitialized) {
+            udpSocket.close()
         }
     }
 

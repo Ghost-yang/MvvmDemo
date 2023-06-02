@@ -54,5 +54,9 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
+        lifecycleScope.launch {
+
+        }
+        lifecycleScope.launchWhenResumed {  }
     }
 }

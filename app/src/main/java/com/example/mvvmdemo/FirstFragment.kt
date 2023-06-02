@@ -5,12 +5,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.mvvmdemo.databinding.FragmentFirstBinding
 import com.example.mvvmdemo.expand.bindView
 import com.example.mvvmdemo.socket.SocketClientActivity
 import com.example.mvvmdemo.socket.SocketServerActivity
 import com.example.mvvmdemo.utils.startActivity
+import kotlinx.coroutines.launch
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -28,6 +32,16 @@ class FirstFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+            }
+        }
+
+        lifecycleScope.launch {
+
+        }
         return _binding!!.root
     }
 
@@ -45,6 +59,7 @@ class FirstFragment : Fragment() {
                 startActivity<SocketServerActivity>()
             }
         }
+        viewLifecycleOwner
     }
 
     override fun onDestroyView() {

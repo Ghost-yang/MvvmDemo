@@ -6,7 +6,6 @@ import androidx.lifecycle.lifecycleScope
 import com.example.composedemo.base.BaseSimpleVBActivity
 import com.example.mvvmdemo.R
 import com.example.mvvmdemo.databinding.ActivitySocketSocketBinding
-import com.example.mvvmdemo.utils.IpUtils
 import com.example.mvvmdemo.utils.click
 import com.orhanobut.logger.Logger
 import kotlinx.coroutines.Dispatchers
@@ -39,8 +38,16 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
                 createTcp()
             }
 
-            btnUdpSend.click {
-                createUdp()
+            btnUdpSingleSend.click {
+                createSingleUdp()
+            }
+
+            btnUdpMultiSend.click {
+
+            }
+
+            btnUdpAllSend.click {
+                createAllUdp()
             }
             edtServerIp.addTextChangedListener {
                 serverIp = it.toString()
@@ -87,7 +94,7 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
         }
     }
 
-    private fun createUdp() {
+    private fun createSingleUdp() {
         lifecycleScope.launch {
             val recContent = withContext(Dispatchers.IO) {
                 var rec = ""
@@ -98,9 +105,8 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
                     val intAddress = InetAddress.getByName(serverIp)
                     val packet = DatagramPacket(bytes, bytes.size, intAddress, serverPort)
                     Logger.d("send packet--address${intAddress}--port-->${serverPort}")
-                    udpScoket = DatagramSocket()
+                    udpScoket = DatagramSocket(clientPort)
                     udpScoket.send(packet)
-
                     val recBytes = ByteArray(1024)
                     val recPacket = DatagramPacket(recBytes, recBytes.size)
                     udpScoket.receive(recPacket)
@@ -109,10 +115,62 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
 
                 } catch (e: Exception) {
                     e.printStackTrace()
+                } finally {
+                    udpScoket.close()
                 }
             }
             binding.tvMessage.text =
                 getString(R.string.tv_server_back_message, recContent.toString())
+        }
+    }
+
+    private fun createAllUdp() {
+        if (!this::udpScoket.isInitialized) {
+            udpScoket = DatagramSocket(clientPort)
+        }
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                try {
+                    val data = "hi,我是广播".toByteArray()
+                    val inetAddress = InetAddress.getByName(all_broadcast)
+                    val packet = DatagramPacket(data, data.size, inetAddress, serverPort)
+                    udpScoket.send(packet)
+
+                    recUdpData()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    private fun createMutUdp() {
+
+    }
+
+    private fun recUdpData() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                while (true) {
+                    val recData = ByteArray(1024)
+                    val recPacket = DatagramPacket(recData, recData.size)
+                    udpScoket.receive(recPacket)
+                    Logger.d(
+                        "ip-->${recPacket.address.hostAddress}/n" +
+                                "port--->${recPacket.port}/n" +
+                                "data-->${String(recPacket.data, 0, recPacket.length)}"
+                    )
+                    withContext(Dispatchers.Main) {
+                        binding.tvMessage.text =
+                            getString(
+                                R.string.tv_server_back_message,
+                                String(recPacket.data, 0, recPacket.length)
+                            )
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -138,6 +196,9 @@ class SocketClientActivity : BaseSimpleVBActivity<ActivitySocketSocketBinding>()
 
     companion object {
         const val serverPort = 42519
+        const val clientPort = 42518
+
+        const val all_broadcast = "255.255.255.255"
     }
 
 }
